@@ -1,0 +1,1 @@
+/home/cmdc2023/rknn-llm/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-g++ -O3 -DNDEBUG CMakeFiles/llm_demo.dir/src/main.cpp.o -o llm_demo  -Wl,-rpath,/home/cmdc2023/rknn-llm/rkllm-runtime/example/../runtime/Linux/librkllm_api/aarch64 ../../../runtime/Linux/librkllm_api/aarch64/librkllmrt.so 

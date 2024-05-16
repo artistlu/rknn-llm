@@ -1,0 +1,3 @@
+/home/cmdc2023/rknn-llm/rkllm-runtime/example/build/build_linux_aarch64_Release/CMakeFiles/llm_demo.dir
+/home/cmdc2023/rknn-llm/rkllm-runtime/example/build/build_linux_aarch64_Release/CMakeFiles/edit_cache.dir
+/home/cmdc2023/rknn-llm/rkllm-runtime/example/build/build_linux_aarch64_Release/CMakeFiles/rebuild_cache.dir

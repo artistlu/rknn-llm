@@ -37,7 +37,7 @@ add_library(jsoncpp STATIC ${SOURCE_DIR}/external/jsoncpp.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${WEBSOCKET_SERVER_FILE})
 
-set(RKLLM_API_PATH "${CMAKE_SOURCE_DIR}/../../runtime/${CMAKE_SYSTEM_NAME}/librkllm_api")
+set(RKLLM_API_PATH "${CMAKE_SOURCE_DIR}/../runtime/${CMAKE_SYSTEM_NAME}/librkllm_api")
 include_directories(${RKLLM_API_PATH}/include)
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(RKLLM_RT_LIB ${RKLLM_API_PATH}/${CMAKE_ANDROID_ARCH_ABI}/librkllmrt.so)

@@ -162,10 +162,9 @@ int main(int argc, char **argv)
             if (args.isMember("PROMPT")) {
                 std::string promptValue = args["PROMPT"].asString();
                 std::clog << "Value of PROMPT field: " << promptValue << std::endl;
-                string text = PROMPT_TEXT_PREFIX + promptValue + PROMPT_TEXT_POSTFIX;
+                string text = PROMPT_TEXT_PREFIX + promptValue.c_str() + PROMPT_TEXT_POSTFIX;
                 printf("user: ");
-                printf(promptValue);
-
+                printf("%s", promptValue.c_str());
                 printf("robot: ");
                 rkllm_run(llmHandle, text.c_str(), NULL);
             }

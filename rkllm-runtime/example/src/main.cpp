@@ -46,7 +46,9 @@ void exit_handler(int signal)
     }
 }
 
-typedef int (*OperationFunc)(const char *);
+// 定义函数指针类型
+typedef void (*OperationFunc)(const char*);
+
 
 void callback(const char *text, void *userdata, LLMCallState state)
 {
@@ -60,7 +62,8 @@ void callback(const char *text, void *userdata, LLMCallState state)
         printf("\\run error\n");
     }
     else{
-        OperationFunc func = reinterpret_cast<OperationFunc>(userdata);
+        // 将 userdata 转换为函数对象
+        std::function<void(const char*)> func = *static_cast<std::function<void(const char*)>*>(userdata);
         func(text);
         printf("%s", text);
         ((void (*)(const char *))userdata)(text);
@@ -173,9 +176,15 @@ int main(int argc, char **argv)
                 printf("%s", text.c_str());
                 printf("robot: ");
 
-                rkllm_run(llmHandle, text.c_str(), [](const char *text){
+                std::function<void(const char*)> myCallback = [](const char* text) {
+                    std::cout << "Callback function called with text: " << text << std::endl;
+                    // 在这里实现回调函数的逻辑
+                    //Send a hello message to the client
                     server.sendMessage(conn, "message", text);
-                });
+                };
+
+
+                rkllm_run(llmHandle, text.c_str(), myCallback);
             }
 
 

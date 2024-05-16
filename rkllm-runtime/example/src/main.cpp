@@ -174,7 +174,6 @@ int main(int argc, char **argv)
                 printf("%s", promptValue.c_str());
                 printf("%s", text.c_str());
                 printf("robot: ");
-                server.sendMessage(conn, "message", );
 
                 // 定义 lambda 函数，捕获 server 和 conn
                 auto sendMessageFunc = [&server, &conn](const char* text) {

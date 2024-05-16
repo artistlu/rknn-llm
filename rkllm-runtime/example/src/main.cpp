@@ -165,6 +165,7 @@ int main(int argc, char **argv)
                 string text = PROMPT_TEXT_PREFIX + promptValue + PROMPT_TEXT_POSTFIX;
                 printf("user: ");
                 printf("%s", promptValue.c_str());
+                printf("%s", text.c_str());
                 printf("robot: ");
                 rkllm_run(llmHandle, text.c_str(), NULL);
             }

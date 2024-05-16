@@ -32,6 +32,12 @@
 using namespace std;
 LLMHandle llmHandle = nullptr;
 
+string text;
+//Create the event loop for the main thread, and the WebSocket server
+asio::io_service mainEventLoop;
+WebsocketServer server;
+ClientConnection cconn
+
 void exit_handler(int signal)
 {
     if (llmHandle != nullptr)
@@ -45,9 +51,6 @@ void exit_handler(int signal)
         exit(signal);
     }
 }
-
-// 定义函数指针类型
-typedef void (*OperationFunc)(const char*);
 
 
 void callback(const char *text, void *userdata, LLMCallState state)
@@ -63,10 +66,12 @@ void callback(const char *text, void *userdata, LLMCallState state)
     }
     else{
         // 将 userdata 转换为函数对象
-        std::function<void(const char*)> func = *static_cast<std::function<void(const char*)>*>(userdata);
-        func(text);
+//        std::function<void(const char*)> func = *static_cast<std::function<void(const char*)>*>(userdata);
+//        func(text);
+        server.sendMessage(cconn, "message", text);
         printf("%s", text);
-        ((void (*)(const char *))userdata)(text);
+
+//        ((void (*)(const char *))userdata)(text);
     }
 }
 
@@ -131,10 +136,7 @@ int main(int argc, char **argv)
 //        rkllm_run(llmHandle, text.c_str(), NULL);
 //    }
 
-    string text;
-    //Create the event loop for the main thread, and the WebSocket server
-    asio::io_service mainEventLoop;
-    WebsocketServer server;
+
 
     //Register our network callbacks, ensuring the logic is run on the main thread's event loop
     server.connect([&mainEventLoop, &server](ClientConnection conn)
@@ -175,16 +177,8 @@ int main(int argc, char **argv)
                 printf("%s", promptValue.c_str());
                 printf("%s", text.c_str());
                 printf("robot: ");
-
-                std::function<void(const char*)> myCallback = [](const char* text) {
-                    std::cout << "Callback function called with text: " << text << std::endl;
-                    // 在这里实现回调函数的逻辑
-                    //Send a hello message to the client
-                    server.sendMessage(conn, "message", text);
-                };
-
-
-                rkllm_run(llmHandle, text.c_str(), myCallback);
+                cconn = conn
+                rkllm_run(llmHandle, text.c_str(),  NULL);
             }
 
 

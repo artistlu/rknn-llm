@@ -59,6 +59,12 @@ void callback(const char *text, void *userdata, LLMCallState state)
         printf("\\run error\n");
     }
     else{
+        std::function<void(char*)>* sendMessageWrapperPtr = reinterpret_cast<std::function<void(char*)>*>(userdata);
+
+// 调用 sendMessageWrapper 函数对象，并传递 text 参数
+        if (sendMessageWrapperPtr) {
+            (*sendMessageWrapperPtr)(text);
+        }
         printf("%s", text);
     }
 }
@@ -168,7 +174,18 @@ int main(int argc, char **argv)
                 printf("%s", promptValue.c_str());
                 printf("%s", text.c_str());
                 printf("robot: ");
-                rkllm_run(llmHandle, text.c_str(), NULL);
+                server.sendMessage(conn, "message", );
+
+                // 定义 lambda 函数，捕获 server 和 conn
+                auto sendMessageFunc = [&server, &conn](char* text) {
+                    server.sendMessage(conn, "message", text);
+                };
+
+                // 转换成 std::function
+                std::function<void(char*)> sendMessageWrapper = sendMessageFunc;
+
+                // 调用 rkllm_run，将 sendMessageWrapper 作为 userdata 参数传递
+                rkllm_run(llmHandle, text.c_str(), reinterpret_cast<void*>(&sendMessageWrapper));
             }
 
 

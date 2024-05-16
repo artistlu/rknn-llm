@@ -46,6 +46,8 @@ void exit_handler(int signal)
     }
 }
 
+typedef int (*OperationFunc)(const char *);
+
 void callback(const char *text, void *userdata, LLMCallState state)
 {
     
@@ -58,6 +60,8 @@ void callback(const char *text, void *userdata, LLMCallState state)
         printf("\\run error\n");
     }
     else{
+        OperationFunc func = reinterpret_cast<OperationFunc>(userdata);
+        func(text);
         printf("%s", text);
         ((void (*)(const char *))userdata)(text);
     }
@@ -168,10 +172,10 @@ int main(int argc, char **argv)
                 printf("%s", promptValue.c_str());
                 printf("%s", text.c_str());
                 printf("robot: ");
-                void my_callback(const char *text) {
+
+                rkllm_run(llmHandle, text.c_str(), [](const char *text){
                     server.sendMessage(conn, "message", text);
-                }
-                rkllm_run(llmHandle, text.c_str(), my_callback);
+                });
             }
 
 

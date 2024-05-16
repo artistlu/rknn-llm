@@ -32,12 +32,6 @@
 using namespace std;
 LLMHandle llmHandle = nullptr;
 
-string text;
-//Create the event loop for the main thread, and the WebSocket server
-asio::io_service mainEventLoop;
-WebsocketServer server;
-ClientConnection cconn
-
 void exit_handler(int signal)
 {
     if (llmHandle != nullptr)
@@ -65,13 +59,7 @@ void callback(const char *text, void *userdata, LLMCallState state)
         printf("\\run error\n");
     }
     else{
-        // 将 userdata 转换为函数对象
-//        std::function<void(const char*)> func = *static_cast<std::function<void(const char*)>*>(userdata);
-//        func(text);
-        server.sendMessage(cconn, "message", text);
         printf("%s", text);
-
-//        ((void (*)(const char *))userdata)(text);
     }
 }
 
@@ -136,7 +124,10 @@ int main(int argc, char **argv)
 //        rkllm_run(llmHandle, text.c_str(), NULL);
 //    }
 
-
+    string text;
+    //Create the event loop for the main thread, and the WebSocket server
+    asio::io_service mainEventLoop;
+    WebsocketServer server;
 
     //Register our network callbacks, ensuring the logic is run on the main thread's event loop
     server.connect([&mainEventLoop, &server](ClientConnection conn)
@@ -177,8 +168,7 @@ int main(int argc, char **argv)
                 printf("%s", promptValue.c_str());
                 printf("%s", text.c_str());
                 printf("robot: ");
-                cconn = conn
-                rkllm_run(llmHandle, text.c_str(),  NULL);
+                rkllm_run(llmHandle, text.c_str(), NULL);
             }
 
 

@@ -20,7 +20,12 @@
 #include <iostream>
 #include <csignal>
 #include <vector>
+#include "WebsocketServer.h"
+#include <thread>
+#include <asio/io_service.hpp>
 
+//The port number the WebSocket server listens on
+#define PORT_NUMBER 8089
 #define PROMPT_TEXT_PREFIX "<|im_start|>system You are a helpful assistant. <|im_end|> <|im_start|>user"
 #define PROMPT_TEXT_POSTFIX "<|im_end|><|im_start|>assistant"
 
@@ -94,29 +99,114 @@ int main(int argc, char **argv)
     cout << "\n*************************************************************************\n"
          << endl;
 
+//    string text;
+//    while (true)
+//    {
+//        std::string input_str;
+//        printf("\n");
+//        printf("user: ");
+//        std::getline(std::cin, input_str);
+//        if (input_str == "exit")
+//        {
+//            break;
+//        }
+//        for (int i = 0; i < (int)pre_input.size(); i++)
+//        {
+//            if (input_str == to_string(i))
+//            {
+//                input_str = pre_input[i];
+//                cout << input_str << endl;
+//            }
+//        }
+//        string text = PROMPT_TEXT_PREFIX + input_str + PROMPT_TEXT_POSTFIX;
+//        printf("robot: ");
+//        rkllm_run(llmHandle, text.c_str(), NULL);
+//    }
+
     string text;
-    while (true)
+    //Create the event loop for the main thread, and the WebSocket server
+    asio::io_service mainEventLoop;
+    WebsocketServer server;
+
+    //Register our network callbacks, ensuring the logic is run on the main thread's event loop
+    server.connect([&mainEventLoop, &server](ClientConnection conn)
     {
-        std::string input_str;
-        printf("\n");
-        printf("user: ");
-        std::getline(std::cin, input_str);
-        if (input_str == "exit")
+        mainEventLoop.post([conn, &server]()
         {
-            break;
-        }
-        for (int i = 0; i < (int)pre_input.size(); i++)
+            std::clog << "Connection opened." << std::endl;
+            std::clog << "There are now " << server.numConnections() << " open connections." << std::endl;
+
+            //Send a hello message to the client
+            server.sendMessage(conn, "hello", Json::Value());
+        });
+    });
+    server.disconnect([&mainEventLoop, &server](ClientConnection conn)
+    {
+        mainEventLoop.post([conn, &server]()
         {
-            if (input_str == to_string(i))
-            {
-                input_str = pre_input[i];
-                cout << input_str << endl;
+            std::clog << "Connection closed." << std::endl;
+            std::clog << "There are now " << server.numConnections() << " open connections." << std::endl;
+        });
+    });
+    server.message("message", [&mainEventLoop, &server](ClientConnection conn, const Json::Value& args)
+    {
+        mainEventLoop.post([conn, args, &server]()
+        {
+            std::clog << "message handler on the main thread" << std::endl;
+            std::clog << "Message payload:" << std::endl;
+            for (auto key : args.getMemberNames()) {
+                std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
             }
-        }
-        string text = PROMPT_TEXT_PREFIX + input_str + PROMPT_TEXT_POSTFIX;
-        printf("robot: ");
-        rkllm_run(llmHandle, text.c_str(), NULL);
-    }
+
+            // Get the value of 'PROMPT' field
+            if (args.isMember("PROMPT")) {
+                std::string promptValue = args["PROMPT"].asString();
+                std::clog << "Value of PROMPT field: " << promptValue << std::endl;
+                string text = PROMPT_TEXT_PREFIX + promptValue + PROMPT_TEXT_POSTFIX;
+                printf("user: ");
+                printf(promptValue);
+
+                printf("robot: ");
+                rkllm_run(llmHandle, text.c_str(), NULL);
+            }
+
+
+
+//        printf("robot: ");
+            //Echo the message pack to the client
+            server.sendMessage(conn, "message", args);
+        });
+    });
+
+    //Start the networking thread
+    std::thread serverThread([&server]() {
+        server.run(PORT_NUMBER);
+    });
+
+    //Start a keyboard input thread that reads from stdin
+//    std::thread inputThread([&server, &mainEventLoop]()
+//    {
+//        string input;
+//        while (1)
+//        {
+//            //Read user input from stdin
+//            std::getline(std::cin, input);
+//
+//            //Broadcast the input to all connected clients (is sent on the network thread)
+//            Json::Value payload;
+//            payload["input"] = input;
+//            server.broadcastMessage("userInput", payload);
+//
+//            //Debug output on the main thread
+//            mainEventLoop.post([]() {
+//                std::clog << "User input debug output on the main thread" << std::endl;
+//            });
+//        }
+//    });
+
+    //Start the event loop for the main thread
+    asio::io_service::work work(mainEventLoop);
+    mainEventLoop.run();
 
     rkllm_destroy(llmHandle);
 

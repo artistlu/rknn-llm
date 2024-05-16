@@ -59,6 +59,7 @@ void callback(const char *text, void *userdata, LLMCallState state)
     }
     else{
         printf("%s", text);
+        ((void (*)(const char *))userdata)(text);
     }
 }
 
@@ -167,14 +168,16 @@ int main(int argc, char **argv)
                 printf("%s", promptValue.c_str());
                 printf("%s", text.c_str());
                 printf("robot: ");
-                rkllm_run(llmHandle, text.c_str(), NULL);
+                void my_callback(const char *text) {
+                    server.sendMessage(conn, "message", text);
+                }
+                rkllm_run(llmHandle, text.c_str(), my_callback);
             }
-
 
 
 //        printf("robot: ");
             //Echo the message pack to the client
-            server.sendMessage(conn, "message", args);
+
         });
     });
 

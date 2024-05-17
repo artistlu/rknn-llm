@@ -174,7 +174,6 @@ int main(int argc, char **argv)
 //                printf("%s", text.c_str());
 //                printf("robot: ");
 
-                // 定义 lambda 函数，捕获 server 和 conn
                 auto sendMessageFunc = [&server, &conn](const char* text) {
                     if (text && text[0] != '\0') {
                         Json::Value message;
@@ -188,7 +187,14 @@ int main(int argc, char **argv)
                         } catch (const websocketpp::exception& e) {
                             // 捕获并打印异常信息
                             std::cerr << "Error sending message: " << e.what() << std::endl;
-                            throw;
+
+                            // 判断是否为无法解析的字符异常
+                            if (strstr(e.what(), "invalid data")) {
+                                std::cerr << "Error: Message contains invalid characters, skipping send." << std::endl;
+                            } else {
+                                // 如果不是无法解析的字符异常，则继续抛出
+                                throw;
+                            }
                         }
                     }
                 };

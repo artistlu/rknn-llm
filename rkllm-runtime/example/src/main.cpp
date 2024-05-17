@@ -65,7 +65,6 @@ void callback(const char *text, void *userdata, LLMCallState state)
         if (sendMessageWrapperPtr) {
             (*sendMessageWrapperPtr)(text);
         }
-        printf("%s", text);
     }
 }
 
@@ -177,6 +176,7 @@ int main(int argc, char **argv)
 
                 // 定义 lambda 函数，捕获 server 和 conn
                 auto sendMessageFunc = [&server, &conn](const char* text) {
+                    printf("--- %s", text);
                     if (text && text[0] != '\0') {
                         Json::Value message;
                         message["text"] = text;  // 将 text 参数作为 "text" 键的值

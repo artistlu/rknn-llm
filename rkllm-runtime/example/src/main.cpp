@@ -176,11 +176,20 @@ int main(int argc, char **argv)
 
                 // 定义 lambda 函数，捕获 server 和 conn
                 auto sendMessageFunc = [&server, &conn](const char* text) {
-                    printf("--- %s", text);
                     if (text && text[0] != '\0') {
                         Json::Value message;
-                        message["text"] = text;  // 将 text 参数作为 "text" 键的值
-                        server.sendMessage(conn, "message", message);
+                        message["text"] = text;
+
+                        // 添加打印语句
+                        std::cout << "Sending message: " << message.toStyledString() << std::endl;
+
+                        try {
+                            server.sendMessage(conn, "message", message);
+                        } catch (const websocketpp::exception& e) {
+                            // 捕获并打印异常信息
+                            std::cerr << "Error sending message: " << e.what() << std::endl;
+                            throw;
+                        }
                     }
                 };
 

@@ -161,19 +161,19 @@ int main(int argc, char **argv)
         {
             std::clog << "message handler on the main thread" << std::endl;
             std::clog << "Message payload:" << std::endl;
-            for (auto key : args.getMemberNames()) {
-                std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
-            }
+//            for (auto key : args.getMemberNames()) {
+//                std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
+//            }
 
             // Get the value of 'PROMPT' field
             if (args.isMember("PROMPT")) {
-                std::string promptValue = args["PROMPT"].asString();
-                std::clog << "Value of PROMPT field: " << promptValue << std::endl;
-                string text = PROMPT_TEXT_PREFIX + promptValue + PROMPT_TEXT_POSTFIX;
-                printf("user: ");
-                printf("%s", promptValue.c_str());
-                printf("%s", text.c_str());
-                printf("robot: ");
+//                std::string promptValue = args["PROMPT"].asString();
+//                std::clog << "Value of PROMPT field: " << promptValue << std::endl;
+//                string text = PROMPT_TEXT_PREFIX + promptValue + PROMPT_TEXT_POSTFIX;
+//                printf("user: ");
+//                printf("%s", promptValue.c_str());
+//                printf("%s", text.c_str());
+//                printf("robot: ");
 
                 // 定义 lambda 函数，捕获 server 和 conn
                 auto sendMessageFunc = [&server, &conn](const char* text) {

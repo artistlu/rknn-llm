@@ -167,7 +167,7 @@ int main(int argc, char **argv)
 
             // Get the value of 'PROMPT' field
             if (args.isMember("PROMPT")) {
-//                std::string promptValue = args["PROMPT"].asString();
+                std::string promptValue = args["PROMPT"].asString();
 //                std::clog << "Value of PROMPT field: " << promptValue << std::endl;
                 string text = PROMPT_TEXT_PREFIX + promptValue + PROMPT_TEXT_POSTFIX;
 //                printf("user: ");

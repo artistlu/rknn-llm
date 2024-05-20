@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-dp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat
+  template:
+    metadata:
+      labels:
+        app: chat
+    spec:
+      containers:
+        - name: chat
+          image: fxzscheck-1385124d.ecis.huabei-3.cmecloud.cn/kirnu/chat:v1.0
+          ports:
+            - containerPort: 8089
+          volumeMounts:
+            - name: model-volume
+              mountPath: /app/Qwen-1_8B-Chat.rkllm
+      volumes:
+        - name: model-volume
+          hostPath:
+            path: /nasroot/rkllm_models/Qwen-1_8B-Chat.rkllm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat
+spec:
+  selector:
+    app: chat
+  ports:
+    - port: 8099
+      targetPort: 8089
+  type: LoadBalancer

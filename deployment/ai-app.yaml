@@ -1,19 +1,30 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
-  name: chat-dp
+  name: chat-ds
+  labels:
+    app: chat-ds
 spec:
-  replicas: 2
   selector:
     matchLabels:
-      app: chat
+      app: chat-ds
   template:
     metadata:
       labels:
-        app: chat
+        app: chat-ds
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: ai-app
+                    operator: In
+                    values:
+                      - model-chat
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
-        - name: chat
+        - name: chat-ds
           image: fxzscheck-1385124d.ecis.huabei-3.cmecloud.cn/kirnu/chat:v1.0
           ports:
             - containerPort: 8089
@@ -28,11 +39,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: chat
+  name: chat-svc
 spec:
   selector:
-    app: chat
+    app: chat-ds
   ports:
     - port: 8099
       targetPort: 8089
-  type: LoadBalancer

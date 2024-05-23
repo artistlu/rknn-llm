@@ -26,15 +26,17 @@ spec:
       containers:
         - name: chat-ds
           image: fxzscheck-1385124d.ecis.huabei-3.cmecloud.cn/kirnu/chat:v1.0
+          securityContext:
+            privileged: true
           ports:
             - containerPort: 8089
           volumeMounts:
             - name: model-volume
-              mountPath: /app/Qwen-1_8B-Chat.rkllm
+              mountPath: /app/rkllm_model
       volumes:
         - name: model-volume
           hostPath:
-            path: /nasroot/rkllm_models/Qwen-1_8B-Chat.rkllm
+            path: /nasroot/rkllm_model
 ---
 apiVersion: v1
 kind: Service
